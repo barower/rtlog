@@ -2,8 +2,12 @@ use std::{
     time::Duration,
     thread
 };
-
 use rtlog::{Rtl, RtlSender, RtlReceiver};
+use assert_no_alloc::*;
+
+#[cfg(debug_assertions)]
+#[global_allocator]
+static A: AllocDisabler = AllocDisabler;
 
 fn log_thread(receiver: RtlReceiver) {
     loop {
@@ -14,10 +18,12 @@ fn log_thread(receiver: RtlReceiver) {
 }
 
 fn rt_thread(sender: RtlSender) {
-    loop {
-        thread::sleep(Duration::from_millis(1));
-        sender.send("rt_thread stuff".to_string());
-    }
+    assert_no_alloc(|| {
+        loop {
+            thread::sleep(Duration::from_millis(1));
+            sender.send("rt_thread stuff".to_string());
+        }
+    })
 }
 
 fn main() {
