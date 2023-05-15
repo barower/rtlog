@@ -8,7 +8,7 @@ use rtlog::{Rtl, RtlSender, RtlReceiver};
 fn log_thread(receiver: RtlReceiver) {
     loop {
         let log = receiver.recv();
-        println!("{log}");
+        println!("{}: {}", log.counter, log.log);
     }
 }
 
