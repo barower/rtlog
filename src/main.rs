@@ -9,18 +9,19 @@ fn log_thread(receiver: RtlReceiver) {
     loop {
         let log = receiver.recv();
         println!("{}: {}", log.counter, log.log);
+        thread::sleep(Duration::from_millis(10));
     }
 }
 
 fn rt_thread(sender: RtlSender) {
     loop {
-        thread::sleep(Duration::from_millis(100));
+        thread::sleep(Duration::from_millis(1));
         sender.send("rt_thread stuff".to_string());
     }
 }
 
 fn main() {
-    let (tx, rx) = Rtl::channel();
+    let (tx, rx) = Rtl::channel(10);
 
     let rthread = thread::spawn(move || { rt_thread(tx); });
     let logthread = thread::spawn(move || { log_thread(rx); });

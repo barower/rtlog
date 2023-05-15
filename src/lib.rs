@@ -12,7 +12,7 @@ pub struct RtlMessage{
 }
 
 pub struct RtlSender{
-    sender: mpsc::Sender<RtlMessage>,
+    sender: mpsc::SyncSender<RtlMessage>,
     counter: Arc<AtomicU64>
 }
 
@@ -21,9 +21,9 @@ pub struct RtlReceiver{
 }
 
 impl Rtl {
-    pub fn channel() -> (RtlSender, RtlReceiver) {
+    pub fn channel(buffer_size: usize) -> (RtlSender, RtlReceiver) {
         let counter = Arc::new(AtomicU64::new(0));
-        let (sender, receiver) = mpsc::channel();
+        let (sender, receiver) = mpsc::sync_channel(buffer_size);
         (RtlSender{sender, counter}, RtlReceiver{receiver})
     }
 }
@@ -38,7 +38,7 @@ impl RtlSender {
     pub fn send(&self, log: String) {
         let counter = self.counter.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let msg = RtlMessage::new(counter, log);
-        self.sender.send(msg).unwrap();
+        self.sender.try_send(msg).unwrap_or(())
     }
 }
 
