@@ -1,4 +1,5 @@
 This little library is based on Chris Apple's talk during ADCx 2023 in San Francisco
+He also published his library here: https://github.com/cjappl/rtlog-cpp
 
 # Requirements for real-time logging library
 
